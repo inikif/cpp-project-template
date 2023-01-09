@@ -14,7 +14,7 @@ __Folder structure:__
       └─ {library name}
               └─ headers // PUBLIC header files
   | lib           // third party lib
-  | script        // scripts for the user
+  | scripts       // scripts for the user
   | src           // PRIVATE source files ()
   | test          // scripts to test the program
   | tools         // tools for your code development

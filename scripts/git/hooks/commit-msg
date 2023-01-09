@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# To enable this hook, it should be placed in .git/hooks/.
+
+# Commit message is passed as the first argument by GIT
+commit_message_file="$1"
+commit_message=`cat $commit_message_file`
+
+ticket_id_regex="^(JIRA-[0-9]{1,5} )+"
+
+# Skip merge commits
+if [[ ${commit_message} =~ ^Merge ]]; then
+    # Commit message is correct. Allow commit
+    exit 0
+fi
+
+# Verify that commit message starts with ticket ID (one or more)
+if ! [[ ${commit_message} =~ ${ticket_id_regex}.* ]]; then
+    echo "Ticket ID was not found in the commit message."
+    echo "Example: JIRA-7 Implemented parsing of network events"
+    exit 1
+fi
+
+# Verify that separator " - " is not added between ticket and message
+if [[ ${commit_message} =~ ${ticket_id_regex}- ]]; then
+    echo "Found separator \"-\" between ticket and message. Please, remove it"
+    exit 1
+fi
+
+# Verify that length of the first line is within allowed limits
+first_line=`echo "$commit_message" | sed -n 1p`
+first_line_length=${#first_line}
+first_line_limit=120
+if [ ${first_line_length} -gt ${first_line_limit} ]; then
+    echo "First line in commit message is too long: $first_line_length symbols"
+    echo "Should be $first_line_limit or less"
+    exit 1
+fi
+
+# Verify that if commit message has multiple lines
+# Then the second line is empty
+lines_number=`echo "$commit_message" | wc -l`
+if [ ${lines_number} -gt 1 ]; then
+    second_line=`echo "$commit_message" | sed -n 2p`
+    if ! [[ -z ${second_line} ]]; then
+        echo "Please, add empty line after the first line in commit message"
+        exit 1
+    fi
+fi
+
+# Commit message is correct. Allow commit
+exit 0
