@@ -1,0 +1,177 @@
+=====================================================================
+                  XL4 AVB Stack Release Notes
+=====================================================================
+ This is a release note for Excelfore AVB Library
+                  Version: 6.3.3
+                   Branch: master
+             Release Date: 2022-12-16
+                   Author: Excelfore Japan
+         Compiler Version: 201954
+               OS Version: int1179
+             Architecture: arm64
+  Development Environment: Linux Host
+=====================================================================
+
+---------------------------------------------------------------------
+                  Git Commits
+---------------------------------------------------------------------
+(This information is used for mapping the release package
+and the corresponding code module commit)
+
+xl4ghiavb: b53faed
+	l2: ac24569
+	conl2: cb9abf9
+	mediahp: 6334bec
+	ipcmedia: 42cd03a
+	gptp2: 574f8b3
+	xl4combase: f9aa682
+	xl4unibase: 8b7952c
+	avbghnet2: fad05ae
+	stpl: 2d1156f
+
+---------------------------------------------------------------------
+                  XL4 AVB Stack Change History
+---------------------------------------------------------------------
+    CREATED                 : 2018.05.31
+    LAST MODIFIED           : 2022-12-16
+    LAST HARDWARE TESTED    : RCARM3N
+
+    XL4 AVB Stack CONTENTS  :
+
+        +--<opensrc>: Excelfore conl2 and mediahp open source code for media app development
+
+        +--<docs>: the AVB API doc, Integration and GettingStarted guide
+
+        +--<headers>: XL4 AVB Stack module public header files
+
+            +--<xl4unibase>: unibase module public header files
+
+            +--<xl4combase>: combase module public header files
+
+            +--<conl2>: conl2 module public header files
+
+            +--<gptp2>: gptp2 module public header files
+
+            +--<l2>: the avb layer 2 public header files
+
+            +--<mediahp>: media helper header files
+
+        +--<mtbuild>: the library files
+
+        +--<xl4avb_daemon_project>: source and project files of AVB daemons
+
+        +--<xl4avb_example_project>: source and project files of AVB example applications
+
+        +--<xl4avb_monolith_project>: project files for monolith
+
+        +--<avbghnet2>: project to setup vlan interface
+
+        +--<README.md>: the description of XL4 AVB stack modules and how to verify it's operation
+
+        +--<release_notes.txt>: this file
+
+        +--<Makefile>: Makefile to build without MULTI tool
+
+        +--<ghintg_env.sh>: Environment variables for compiling with the makefile
+
+        +--<COPYING>: Excelfore copyright
+
+        +--<xl4avbgh.gpj>: the xl4avb project file
+
+
+    HISTORY:
+    ====2022-12-16 : Ver.6.3.3====
+        + Refactoried the gptp code. Removed gptpmasterclock_preinit() APIs.
+        + Updated unibase, combase, l2, conl2, mediahp modules
+
+    ====2021-04-05 : Ver.6.2.1====
+        + Base libraries rewritten (unibase and combase).
+        + Removed avtpdc layer and the application will use the avtpc APIs
+
+    ====2020.02.13 : Ver.4.1.3====
+        + issue with IEEE 1722 'tu' flag when gptpd is in 'Slave only' mode fixed.
+
+    ====2020.01.06 : Ver.4.1.2====
+        + APIs to init gptpmasterclock and get time changed/simplified.
+        + Issues with getting time from multiple tasks in Single address space fixed.
+
+    ====2019.10.02 : Ver.4.1.1====
+        + Modified project files to enable/disable AVTP Support, which requires libip46router.a.
+
+    ====2019.03.31 : Ver.4.1.0====
+        + Updated New software design to avoid writing phase value of gptp time directly to clock register since it unsettles the
+          clock in some platforms.
+        + The way to get gptp time has been changed from previous release. Refer API document chapter 4.3.1.
+        + Application uses connection objects instead of Shared memory to pass information between gptp2d and applications that uses gptp time.
+        + Fixed l2/avtpdc bug in get_max_packetsize().
+        + Fixed l2/avtpdc avtpdc_init() will return now, indicating that media application can now start using avtp daemon.
+        + Updated project files to support INTEGRITY 11.7.8
+
+    ====2018.12.06 : Ver.3.6.1====
+        + Fixed l2/avtpdc library multiple stream error
+
+    ====2018.11.22 : Ver.3.6.0====
+
+        + Updated example code application license from LGPL to BSD (Keeping conl2 license in LGPL)
+            + testcodes/avtp_testclient.c
+            + mlsrc/avb_media_app.c
+            + mlsrc/avb_talker.c
+            + mlsrc/avtpdc_conl2_testappli.c
+            + mlsrc/avtpdc_simple_listener.c
+            + mlsrc/avtpdc_testclient.c
+        + Updated xl4avb threads name (Last release shown name_too_long in Debug mode)
+        + Updated POSIX threads priority
+        + Added gptpmonitor dynamic download application
+        + Added project file for Ebisu board xl4avbghr_Ebisu.gpj
+        + No update for the document, same with previous version
+        + Removed unused files in mlsrc
+
+    ====2018.07.23 : Ver.3.5.3====
+
+        + Updated the xl4avb l2 lib:
+            + Updated more stream information in the avtpdc_data struct in the avtpdc.h
+            + Updated applications related to the changes of avtpdc struct
+            + Updated the avtp_testclient and avb_stack_as0 example
+            + Fixed negative print bugs in avtpdc_testclient.c and avtp_testclient.c example
+
+        + Updated the xl4avb h264 conl2 and avtpdc_conl2_testappli example
+
+        + Added argument for avtpdc_conl2_testappli, avb_stack_as0 and gptpd_as0 in the ml.init file
+
+        + Updated a gptpd argument (-R option) to make it become flexible with the gptp HW clock configuration
+            In case Salvator-XS RCarM3, the PLL specified in the specs is 16.66MHz, however, in the schematic, this value is 16.64MHz.
+            With the PLL is 16.66MHz, the fGPTP will be 133.333333MHz.
+            Then the Renesas ethernet driver calculated the TIV base as follows:
+                TIV=(10^9 << 20) / fGPTP = 7864320
+            Under this fGPTP clock value, the clock error is around -1600ppm.
+            With this error value, gptpd can not be in good synchronization status. The range of clock error that gptpd can work fine is +/-512ppm.
+            Therefore, the software need to adjust the TIV value in the corresponding fGPTP frequency value deployed on the hardware.
+            With PLL is 16.64MHz, the fGPTP should be 133.120005 MHz, then the TIV base value will be 7876923.
+            So we added an option "-R 12603" means need to add 12603 + 7864320 = 7876923.
+            Depending on the difference of PLL value, the tivoffset value should be calculated as above and updated to the correct value.
+
+    ====2018.05.31 : Ver.3.5.2====
+
+        + Updated the xl4avb l2 lib and avtpdc.h file:
+            + Added the avtpdc_deinit() function
+            + Updated the avtpdc_read_data() function
+            + Updated the avtpdc_data struct
+            + Fixed negative print bugs in avtpdc_testclient.c example
+
+        + Updated the avtpdc_conl2_testappli.c example
+            + Exported an access unit data buffer which can feed to the decoder
+
+        + Updated the h264_avtp_packet.c/.h to validate the input data and support the access unit buffer
+
+        + Updated other examples to be compatible with the new l2 library
+
+
+-----------------------------------------------------------------------------------------------------------------
+                                               Known Issues
+-----------------------------------------------------------------------------------------------------------------
+        + avtp ethernet frame size is limited to 1514 even when VLAN header is added to the ethernet frame.
+          This limitation arises as some INTEGRITY RCAR BSP/Ethernet driver is not able to handle 1518 byte packets.
+
+        + When running on RCar Salvator-XS M3, M3N with KSZ9031 PHY chip if the AVB application continues to send data at high rate when the link is down,
+          the ethernet link will not be able to up.
+          The reason is that the high data rate from the Ethernet Controller prevents the PHY from completing Link Auto-Negotiation.

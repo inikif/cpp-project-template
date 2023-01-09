@@ -1,0 +1,12 @@
+- Setup repo
+- Setup JIRA
+- Setup build procedure
+- Pull Request
+  -- clang-format
+  -- Min 2 approvals
+  -- Approval from compomnent owner
+  -- clang-format: Push glang-format file to repo
+     -- format for json, ProtoBuf files
+  -- static analisator: clang-tidy
+  -- test : unit tests
+  -- build for targets
